@@ -1,50 +1,96 @@
 Device & Entity Naming Convention
 
 1. Device
-Description: Device only has a friendly name and not ID. As I read online, only Entities are exposed to the outside world for voice assistant, so that's why Device is only identified with only a friendly name because it's only for internal development. Regarding the format of the friendly name, it should contains a Room where the actual device connecting is from, and the name of the device, if possible, with the brand for better discriminability, but this is not required
 
+Description  
+- Device only has a friendly name, not an ID.  
+- Only Entities are exposed externally (e.g. to voice assistants).  
+- Devices are for internal development reference.  
+- Friendly name should contain:  
+  - The room the device is in.  
+  - The device name, always including the brand for clarity.  
 
-Format: "[room name] [device name]"
-Requirements:
-	- All first character of each word is capitalized
-	- Only alphanumerics and spaces are allowed
-Legend:
-	- [room name]: The name of room in which the device is in, e.g. Living Room, Kitchen, Bedroom...
-	- [device name]: The name of the device, with the generic name of the device first (optionally) AND THEN the brand name e.g. (no brand example) Plug, Led Strip, Echo Dot, TV, (brand example) AC GE, TV Google, TV Hisense.
+Format  
+[room name] [device name]
+
+Requirements  
+- First character of each word is capitalized.  
+- Only alphanumerics and spaces allowed.  
+
+Legend  
+- [room name] → Name of the room (e.g., Living Room, Kitchen, Bedroom).  
+- [device name] → Generic device name + brand.  
+  Example: Plug TP-Link, LED Strip Govee, Echo Dot Amazon, TV Hisense, AC GE.  
+
+---
 
 2. Entity
+
 2.1 Entity Name
-Description: Device contains Entity, which are variable that that Device controls. From what I read in HA docs, you're not interfacing the Device directly, but rather through Entity. So a Light Device can contains On/Off Entity, Color Entity, and/or Brightness Entity. Anyway, it should contain Room name, the name of the device, and the function of the device.
-	One more thing, if the entity is identified to be the main controller of the device (by having "main" label), then the name should basically be the device name. So only room name and device name, no function.
 
-Format: "[room name] [device name] [(not needed if is "main") function]"
-Requirements:
-	- All first character of each word is capitalized
-	- Only alphanumerics and spaces are allowed
-Legend:
-	- [room name]: The name of room in which the device is in, e.g. Living Room, Kitchen, Bedroom...
-	- [device name]: See Section 1 Device above.
-	- [function]: If the entity is not the "main" device, this should be the function of the entity within the device e.g. LED Indicator, Thermostat, Cloud Connection.
+Description  
+- A Device contains Entities, which are variables the device controls.  
+- You don’t interact with Devices directly in HA, but with their Entities.  
+- Example: A Light device may have On/Off, Color, and Brightness entities.  
+- Entity name should include:  
+  - Room name  
+  - Device name (with brand)  
+  - Function (unless it is a “main” entity)  
 
-Example:
-	- Living Room [room name] AC GE [device name] Thermostat [function] => Living Room AC GE Thermostat
-	- Bedroom [room name] Bulb 1 [device name] Power Switch [function] => Bedroom Bulb 1 Power Switch
-	- "main" [label] 
+- If entity is labeled “main”, its name is just [room name] [device name].  
+- If entity is labeled “hidden main”, it means:  
+  - It’s also the main controller.  
+  - But it is hidden in favor of another entity (e.g., Plug switch hidden, Light entity shown).  
 
-Special case:
-	- If the Entity is also tagged as "hidden main", it means that that Entity is ALSO the main controller of the Device, but is hidden in favor of another Entity for better UX and control. For example, if a Plug is controlling a lamp, then the main controller of that Plug, whose main controller is a Switch Entity. Now, if I want that Entity to appear on the dashboard as a Light instead of a Switch, I would have to change the "Show switch as..." option in the Entity settings. This would effectively hide the Switch and create a new Light Entity dependent on the status of the Switch. That's why, to differentiate this, for ease of development later, I label the Switch as "hidden main" and the Light as "main".
+Format  
+[room name] [device name] [function]   // omit [function] if "main"
+
+Requirements  
+- First character of each word is capitalized.  
+- Only alphanumerics and spaces allowed.  
+
+Legend  
+- [room name] → Name of the room.  
+- [device name] → See Section 1 Device (always includes brand).  
+- [function] → Function of the entity (e.g., LED Indicator, Thermostat, Cloud Connection).  
+
+Examples  
+- Living Room AC GE Thermostat  
+- Bedroom Bulb Philips Power Switch  
+- "main" → Bedroom Bulb Philips  
+
+---
 
 2.2 Entity ID
-Description: Entity ID is the ID of each variable that a Device controls (that's how I understood it from the HA docs). By definition, each ID contains a domain, which is a fixed set of device-ish stuff that HA supports, and I don't think we can change this honestly. After the domain, it should contain the room, function, and the name of the device, not the Device Name, just the [device name] in Section 1. More on this in the format.
 
-Format: "[domain].[room name]_[function]_[device name]"
-Requirements:
-    - If the term has spaces, convert all of them to underscore e.g. Living Room => living_room
-	- Only lowercased alphanumerics and underscores are allowed
+Description  
+- Entity ID is the unique identifier for each variable a device controls.  
+- Format always begins with the domain (e.g., light, switch, climate).  
+- After domain, it should contain:  
+  - Room name  
+  - Device name (with brand)  
+  - Function (unless it is a “main” entity)  
 
-Legend:
-	- [domain]: one of the domains provided by HA. From what I read, I don't think I can change this, other than going deep into the database and change some configs. For my own home now, I think the list they have is perfectly fine.
-	- [room name]: The name of room in which the device is in, e.g. living_room, kitchen, bedroom... 
-	- [function]: The function of the entity within the device e.g. led_indicator, thermostat, cloud_connection...
-	- [device name]: The name of the device.
+- If entity is labeled “main”, [function] is omitted.  
+- If entity is labeled “hidden main”, use the same convention, but note it in internal docs for clarity.  
+
+Format  
+[domain].[room name]_[device name]_[function]   // omit [function] if "main"
+
+Requirements  
+- Convert spaces to underscores.  
+  Example: Living Room → living_room  
+- Only lowercase alphanumerics and underscores allowed.  
+- Entity IDs do not preserve capitalization or spaces from Device/Entity names.  
+
+Legend  
+- [domain] → One of HA’s fixed domains (e.g., light, switch, climate). Cannot usually be changed.  
+- [room name] → Room name, lowercase with underscores.  
+- [device name] → Device name with brand, lowercase with underscores.  
+- [function] → Function of the entity, lowercase with underscores (e.g., led_indicator, thermostat, cloud_connection).  
+
+Examples  
+- climate.living_room_ac_ge_thermostat  
+- switch.bedroom_bulb_philips_power_switch  
+- "main" → light.bedroom_bulb_philips  
 
