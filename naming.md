@@ -68,14 +68,14 @@ Description
 - Format always begins with the domain (e.g., light, switch, climate).  
 - After domain, it should contain:  
   - Room name  
-  - Function  
   - Device name (with brand)  
+  - Function (unless it is a “main” entity)  
 
 - If entity is labeled “main”, [function] is omitted.  
 - If entity is labeled “hidden main”, use the same convention, but note it in internal docs for clarity.  
 
 Format  
-[domain].[room name]_[function]_[device name]   // omit [function] if "main"
+[domain].[room name]_[device name]_[function]   // omit [function] if "main"
 
 Requirements  
 - Convert spaces to underscores.  
@@ -86,11 +86,11 @@ Requirements
 Legend  
 - [domain] → One of HA’s fixed domains (e.g., light, switch, climate). Cannot usually be changed.  
 - [room name] → Room name, lowercase with underscores.  
-- [function] → Function of the entity, lowercase with underscores (e.g., led_indicator, thermostat, cloud_connection).  
 - [device name] → Device name with brand, lowercase with underscores.  
+- [function] → Function of the entity, lowercase with underscores (e.g., led_indicator, thermostat, cloud_connection).  
 
 Examples  
-- climate.living_room_thermostat_ac_ge  
-- switch.bedroom_power_switch_bulb_philips  
+- climate.living_room_ac_ge_thermostat  
+- switch.bedroom_bulb_philips_power_switch  
 - "main" → light.bedroom_bulb_philips  
 
